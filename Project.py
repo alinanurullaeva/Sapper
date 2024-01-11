@@ -1,35 +1,29 @@
 import pygame
 from random import randint
-
-
+    
 class Board:
     def __init__(self, width, height, number):
         self.width = width
         self.height = height
         self.number = number
-        self.board = [[0] * width for _ in range(height)]
-        self.a = 50
-        self.arr = []
-        self.b = []
-        self.c = []
-        while len(self.b) != self.number:
-            n = randint(0, self.width * self.height - 1)
-            if n not in self.b:
-                self.b.append(n)
-        for i in self.b:
-            self.c.append((i % self.width, i // self.height))
-        for i in range(self.width):
-            self.d = []
-            for j in range(self.height):
-                if (i, j) not in self.c:
-                    self.d.append(0)
-                else:
-                    self.d.append('B')
-            self.arr.append(self.d)
+        self.board = [[0] * height for _ in range(width)]
+        self.scale = 50 
+        
+        non_repeatible_coords = []
+        while len(non_repeatible_coords) != self.number:
+            coord = (randint(0, self.width - 1), randint(0, self.height - 1))
+            if coord not in non_repeatible_coords:
+                non_repeatible_coords.append(coord)
+            
+        for bomb in non_repeatible_coords:
+            x, y = bomb
+            self.board[x][y] = 'B'
+                
         for i in range(self.width):
             for j in range(self.height):
-                self.arr[i][j] = self.check(i, j)
-        print(self.arr)
+                self.board[i][j] = self.check(i, j)
+                
+        print(self.board)
         self.left = 10
         self.top = 10
         self.cell_size = 30
@@ -41,66 +35,33 @@ class Board:
         self.cell_size = cell_size
 
     def render(self, screen):
-        a = self.a
+        scale = self.scale
         for i in range(self.width):
             for j in range(self.height):
-                pygame.draw.rect(screen, (100, 100, 100), (i * a, j * a, (i + 1) * a, (j + 1) * a), 1)
+                pygame.draw.rect(screen, (100, 100, 100), (i * scale, j * scale, (i + 1) * scale, (j + 1) * scale), 1)
 
     def draw(self, screen, number, x, y):
         font = pygame.font.Font(None, 50)
         text = font.render(str(number), True, (0, 0, 0))
-        screen.blit(text, (x * self.a, y * self.a))
+        screen.blit(text, (x * self.scale, y * self.scale))
 
     def check(self, x, y):
-        arr = self.arr
-        self.k = 0
+        arr = self.board
+        count = 0
         if arr[x][y] != 'B':
-            try:
-                if arr[x - 1][y - 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x - 1][y] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x - 1][y + 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x][y - 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x][y + 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x + 1][y - 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x + 1][y] == 'B':
-                    self.k += 1
-            except:
-                pass
-            try:
-                if arr[x + 1][y + 1] == 'B':
-                    self.k += 1
-            except:
-                pass
-            return self.k
+            for i in range(3):
+                for j in range(3):
+                    checkX = (x - 1) + i
+                    checkY = (y - 1) + j
+                    if (0 <= checkX < self.width) and (0 <= checkY < self.height):
+                        if arr[checkX][checkY] == 'B':
+                            count += 1
+            return count
         return 'B'
 
 pygame.init()
 board = Board(5, 7, 3)
-size = width, height = board.width * board.a, board.height * board.a
+size = width, height = board.width * board.scale, board.height * board.scale
 screen = pygame.display.set_mode(size)
 running = True
 while running:
@@ -109,7 +70,7 @@ while running:
             running = False
     screen.fill((255, 255, 255))
     board.render(screen)
-    for i, el in enumerate(board.arr):
+    for i, el in enumerate(board.board):
         for j, el2 in enumerate(el):
             board.draw(screen, str(el2), i, j)
     pygame.display.flip()
