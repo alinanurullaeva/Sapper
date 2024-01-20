@@ -54,24 +54,32 @@ class BoardUI:
                 pygame.draw.rect(screen, (100, 100, 100), (i * scale, j * scale, (i + 1) * scale, (j + 1) * scale), 1)
 
     def draw(self, screen, number, x, y):
+        open_cell = 0
         if self.base_board.flag and self.was_drawn[x][y] != 2:
             self.was_drawn[x][y] = 1
-        for i, el1 in enumerate(self.was_drawn):
+        for i, el1 in enumerate(self.was_drawn): # def draw_number(self, text, i, j, color=(0, 0, 0)):
             for j, el2 in enumerate(el1):
                 if el2 == 1:
-                    font = pygame.font.Font(None, 50)
                     if self.base_board.board_hidden[i][j] == 'B':
-                        text = font.render(str(self.base_board.board_hidden[i][j]), True, (255, 0, 0))
+                        self.draw_number(self.base_board.board_hidden[i][j], i, j, color=(255, 0, 0))
                         if self.base_board.flag:
                             self.base_board.flag = False
-                            print('Игра завершена')
+                            print('Увы. Вы проиграли. Игра завершена')
                     else:
-                        text = font.render(str(self.base_board.board_hidden[i][j]), True, (0, 0, 0))
-                    screen.blit(text, (i * self.scale, j * self.scale))
-                if el2 == 2:
-                    font = pygame.font.Font(None, 50)
-                    text = font.render('B', True, (255, 0, 0))
-                    screen.blit(text, (i * self.scale, j * self.scale))
+                        open_cell += 1
+                        self.draw_number(self.base_board.board_hidden[i][j], i, j)
+                elif el2 == 2 and not self.base_board.flag and self.base_board.board_hidden[i][j] != 'B':
+                    self.draw_number(self.base_board.board_hidden[i][j], i, j, color=(0, 0, 200))
+                elif el2 == 2 and self.base_board.flag:
+                    self.draw_number('B', i, j, color=(255, 0, 0))
+                elif el2 == 2 and not self.base_board.flag:
+                    self.draw_number('B', i, j, color=(0, 150, 0))
+                elif not self.base_board.flag:
+                    self.draw_number(self.base_board.board_hidden[i][j], i, j, color=(150, 150, 150))
+        if open_cell == self.base_board.width * self.base_board.height - self.base_board.bomb_count and \
+                self.base_board.flag:
+            print('Поздравляю! Вы победили! Игра завершена')
+            self.base_board.flag = False
         a = [(x - 1, y - 1), (x - 1, y), (x - 1, y + 1), (x, y - 1),
              (x, y + 1), (x + 1, y - 1), (x + 1, y), (x + 1, y + 1)]
         if self.base_board.board_hidden[x][y] == 0:
@@ -92,9 +100,14 @@ class BoardUI:
             elif self.was_drawn[i][j] == 2:
                 self.was_drawn[i][j] = 0
 
+    def draw_number(self, text, i, j, color=(0, 0, 0)):
+        font = pygame.font.Font(None, 50)
+        text = font.render(str(text), True, color)
+        screen.blit(text, (i * self.scale, j * self.scale))
+
 
 pygame.init()
-board_base = Board(10, 10, 30)
+board_base = Board(10, 10, 15)
 board_UI = BoardUI(board_base)
 size = width, height = board_UI.base_board.width * board_UI.scale, board_UI.base_board.height * board_UI.scale
 screen = pygame.display.set_mode(size)
