@@ -27,7 +27,6 @@ class Board:
             for j in range(self.height):
                 self.board_hidden[i][j] = self.check_bomb_count(i, j)
 
-        # print(*self.board_hidden, sep='\n')
 
     def check_bomb_count(self, x, y):
         arr = self.board_hidden
@@ -80,7 +79,7 @@ class BoardUI:
         open_cell = 0
         if self.base_board.flag and self.was_drawn[x][y] != 2:
             self.was_drawn[x][y] = 1
-        for i, el1 in enumerate(self.was_drawn):  # def draw_number(self, text, i, j, color=(0, 0, 0)):
+        for i, el1 in enumerate(self.was_drawn):  
             for j, el2 in enumerate(el1):
                 if el2 == 1:
                     if self.base_board.board_hidden[i][j] == 'B':
@@ -88,7 +87,6 @@ class BoardUI:
                         if self.base_board.flag:
                             self.base_board.flag = False
                             self.base_board.won = False
-                            print('Увы. Вы проиграли. Игра завершена')
                     else:
                         open_cell += 1
                         self.draw_number(screen, self.base_board.board_hidden[i][j], i, j)
@@ -102,7 +100,6 @@ class BoardUI:
                     self.draw_number(screen, self.base_board.board_hidden[i][j], i, j, color=(150, 150, 150))
         if open_cell == self.base_board.width * self.base_board.height - self.base_board.bomb_count and \
                 self.base_board.flag:
-            print('Поздравляю! Вы победили! Игра завершена')
             self.base_board.won = True
             self.marked_cell = self.base_board.bomb_count
             self.base_board.flag = False
@@ -169,7 +166,6 @@ class First_Window_UI():
         text_y = height // 5 - text.get_height() // 2
         screen.blit(text, (text_x, text_y))
 
-        font = pygame.font.Font(None, 50)
         text = font.render("Уровень 1", True, (0, 0, 0))
         text_x = width // 2 - text.get_width() // 2
         text_y = height // 5 * 2 - text.get_height() // 2
@@ -180,7 +176,6 @@ class First_Window_UI():
                                              text_w + 20, text_h + 20), 1)
         self.coord_rect1 = [text_x - 10, text_y - 10, text_x + text_w + 10, text_y + text_h + 10]
 
-        font = pygame.font.Font(None, 50)
         text = font.render("Уровень 2", True, (0, 0, 0))
         text_x = width // 2 - text.get_width() // 2
         text_y = height // 5 * 3 - text.get_height() // 2
@@ -191,7 +186,6 @@ class First_Window_UI():
                                              text_w + 20, text_h + 20), 1)
         self.coord_rect2 = [text_x - 10, text_y - 10, text_x + text_w + 10, text_y + text_h + 10]
 
-        font = pygame.font.Font(None, 50)
         text = font.render("Уровень 3", True, (0, 0, 0))
         text_x = width // 2 - text.get_width() // 2
         text_y = height // 5 * 4 - text.get_height() // 2
@@ -215,6 +209,9 @@ def start_first_window():
     size_first_window = width_first_window, height_first_window = 900, 500
     screen_first_window = pygame.display.set_mode(size_first_window)
     running_first_window = True
+    screen_first_window.fill((255, 255, 255))
+    first_window.draw(screen_first_window, width_first_window, height_first_window)
+    pygame.display.flip()
     while running_first_window:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -230,9 +227,7 @@ def start_first_window():
                     elif check_in_rect(event.pos[0], event.pos[1], first_window.coord_rect3):
                         pygame.quit()
                         start_game(15, 15, 40)
-        screen_first_window.fill((255, 255, 255))
-        first_window.draw(screen_first_window, width_first_window, height_first_window)
-        pygame.display.flip()
+
 
 
 def start_game(width, height, bomb_count):
@@ -240,7 +235,7 @@ def start_game(width, height, bomb_count):
     board_base = Board(width, height, bomb_count)
     board_UI = BoardUI(board_base)
     size = board_UI.base_board.width * board_UI.scale, \
-        (board_UI.base_board.height + 2.5) * board_UI.scale
+        int((board_UI.base_board.height + 2.5) * board_UI.scale)
     screen_game = pygame.display.set_mode(size)
     running_game = True
     x = randint(0, board_base.width - 1)
